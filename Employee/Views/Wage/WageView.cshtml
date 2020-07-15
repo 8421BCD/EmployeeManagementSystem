@@ -1,0 +1,131 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout_2.cshtml";
+    ViewBag.Title = "个人工资查询";/*刘文涵*/
+}
+
+<style>
+    .layui-table-cell .layui-form-checkbox[lay-skin="primary"] {
+        transform: translateY(20%);
+    }
+</style>
+
+<div id="tablee" lay-filter="jsTable"></div>
+
+<script type="text/html" id="topbar">
+    <div class="layui-input-inline">
+        <select lay-verify="required" name="部门名称" id="部门名称" class="SelectPaymentMode">
+            <option value="">请选择部门</option>
+        </select>
+    </div>
+    <div class="layui-input-inline">
+        <input class="layui-input" lay-verify="date" name="起始日期" id="起始日期" placeholder="起始日期">
+    </div>
+    <text>—</text>
+    <div class="layui-input-inline">
+        <input class="layui-input" lay-verify="date" name="结束日期" id="结束日期" placeholder="结束日期">
+    </div>
+    <button class="layui-btn" data-type="search" id="search" lay-event="search">
+        <i class="layui-icon layui-icon-search"></i>查询
+    </button>
+</script>
+
+@section Scripts{
+    <script type="text/javascript">
+
+    layui.use(['table', 'layer', 'laydate'], function ()
+    {
+        var table = layui.table;
+        var $ = layui.$;
+        var layer = layui.layer
+        var laydate = layui.laydate;
+
+        laydate.render({
+            elem: "#起始日期"
+        });
+        laydate.render({
+            elem: "#结束日期"
+        });
+
+        $.ajax({
+        type: "get",
+        url: "@Url.Action("GetDepList")",
+        dataType: "json",
+            success: function (data) {
+                for (var i in data) {
+                $('#部门名称').append("<option value='" + data[i].部门名称 + "'>" + data[i].部门名称 + "</option>");
+                }
+        }
+        });
+        table.render({
+            elem: '#tablee'
+            , height: 510
+            , where: { 部门名称: $("#部门名称").val(), 起始日期: $("#起始日期").val(), 结束日期: $("#结束日期").val() }
+            , url: "@Url.Action("GetList")"//数据接口
+            , toolbar: "#topbar"
+            , page: true //开启分页
+            , cols: [[
+                { type: "checkbox" },
+                { align: 'center', width: 60, templet: function (obj) {
+                    return obj.LAY_INDEX;
+                }
+                },
+                //刘文涵
+                {
+                    field: '日期', align: 'center', title: '日期', width: 150, sort: true,
+                    templet: function (d) {
+                        var val = d.日期;
+                        var date = new Date(parseInt(val.replace("/Date(", "").replace(")/", ""), 10));
+                        //月份为0-11，所以+1，月份小于10时补个0
+                        var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+                        var currentDate = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+                        return date.getFullYear() + "-" + month + "-" + currentDate;
+                    }
+                },
+                { field: '工号', align: 'center', title: '工号', width: 120, sort: true },
+                { field: '姓名', align: 'center', title: '姓名', width: 120, sort: true },
+                { field: '部门名称', align: 'center', title: '部门名称', width: 120, sort: true },
+                { field: '月出勤工资', align: 'center', title: '月出勤工资', width: 150, sort: true },
+                { field: '职务工资', align: 'center', title: '职务工资', width: 150, sort: true },
+                { field: '奖惩金额', align: 'center', title: '奖惩金额', width: 150, sort: true },
+                { field: '加班费', align: 'center', title: '加班费', width: 100, sort: true },
+                { field: '绩效工资', align: 'center', title: '绩效工资', width: 150, sort: true },
+                { field: '代扣款', align: 'center', title: '代扣款', width: 100, sort: true },
+                { field: '实发工资', align: 'center', title: '实发工资', width: 150, sort: true }
+            ]]
+        });
+
+
+        table.on("toolbar(jsTable)", function (obj)
+        {
+            switch (obj.event) {
+                case 'search':
+                    $.ajax({
+                    type: "get",
+                    url: "@Url.Action("GetDepList")",
+                    dataType: "json",
+                        success: function (data) {
+                            for (var i in data) {
+                            $('#部门名称').append("<option value='" + data[i].部门名称 + "'>" + data[i].部门名称 + "</option>");
+
+                            }
+                            table.render();
+                    }
+                    });
+                    table.reload("tablee", {
+                        page: { curr: 1 },
+                        where: { 部门名称: $("#部门名称").val(), 起始日期: $("#起始日期").val(), 结束日期: $("#结束日期").val() }
+                    }, 'data');
+                    laydate.render({
+                        elem: "#起始日期"
+                    });
+                    laydate.render({
+                        elem: "#结束日期"
+                    });
+                    break;
+            }
+        })
+
+
+     });
+    </script>
+}

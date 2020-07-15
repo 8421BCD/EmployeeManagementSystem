@@ -1,0 +1,72 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout_1.cshtml";
+    ViewBag.Title = "成绩查询";/*刘文涵*/
+}
+
+<style>
+    .layui-table-cell .layui-form-checkbox[lay-skin="primary"] {
+        transform: translateY(20%);
+    }
+</style>
+<div class="current-location">
+    <span>当前位置：</span>
+    <a><cite>自助服务</cite></a>
+    | <a><cite>培训成绩查询</cite></a>
+</div>
+<div id="tablee" lay-filter="jsTable"></div>
+
+<script type="text/html" id="topbar">
+
+    <div class="layui-inline" id="searchKeywordf">
+        <input type="text" autocomplete="off" id="keyword" placeholder="请输入课程号..." class="layui-input">@*刘文涵*@
+    </div>
+    <button class="layui-btn" data-type="search" id="search" lay-event="search">
+        <i class="layui-icon layui-icon-search"></i>查询
+    </button>
+</script>
+
+@section Scripts{
+    <script type="text/javascript">
+
+    layui.use(['table', 'layer'], function ()
+    {
+            var table = layui.table;
+            var $ = layui.$;
+            var layer = layui.layer
+            table.render({
+                elem: '#tablee'
+                , height: 510
+                , where: $("#keyword").val()
+                , url: "@Url.Action("GetList")"//数据接口
+                , toolbar: "#topbar"
+                , page: true //开启分页
+                , cols: [[
+                    { type: "checkbox" },
+                    { align: 'center', width: 80, templet: function (obj) {
+                        return obj.LAY_INDEX;
+                    }
+                    },
+                    { field: '编号', align: 'center',title: '编号', width: 150, sort: true, hide: true },@* 刘文涵 以下几个*@
+                    //刘文涵
+                    { field: '工号', align: 'center',title: '工号', width: 150, sort: true },
+                    { field: '课程号', align: 'center', title: '课程号', width: 200, sort: true },
+                    { field: '课程名', align: 'center', title: '课程名', width: 200, sort: true },
+                    { field: '成绩', title: '成绩', align: 'center', sort: true },
+
+                ]]
+            });
+        table.on("toolbar(jsTable)", function (obj)
+            {
+            switch (obj.event) {
+                case 'search':
+                    table.reload("tablee", {
+                        page: { curr: 1 },
+                        where: { keyword: $('#keyword').val() }
+                    }, 'data');
+                    break;
+            }
+        }
+            )
+     });
+    </script>
+}

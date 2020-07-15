@@ -1,0 +1,121 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout_2.cshtml";
+    ViewBag.Title = "老师管理";
+}
+
+<style>
+    .layui-table-cell .layui-form-checkbox[lay-skin="primary"] {
+        transform: translateY(20%);
+    }
+</style>
+
+
+@*@Scripts.Render("~/bundles/layui")*@
+<div class="current-location">
+    <span>当前位置：</span>
+    <a><cite>系统管理</cite></a>
+    | <a><cite>培训信息管理</cite></a>
+    | <a><cite>培训老师管理</cite></a>
+</div>
+<div id="tablee" lay-filter="jsTable"></div>
+<script type="text/html" id="topbar">
+
+    <div class="layui-inline" id="searchKeywordf">
+        <input type="text" autocomplete="off" id="keyword" placeholder="请输入要查询的老师编号..." class="layui-input">
+    </div>
+    <button class="layui-btn" data-type="search" id="search" lay-event="search">
+        <i class="layui-icon layui-icon-search"></i>查询
+    </button>
+    <button class="layui-btn" data-type="add" id="add" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>添加
+    </button>
+</script>
+<script type="text/html" id="tbar">
+    <a class="layui-btn layui-btn-xs" lay-event="Edit" title="编辑">
+        <i class="layui-icon layui-icon-edit"></i>编辑
+    </a>
+</script>
+<script type="text/html" id="image">
+    <img src="{{d.照片}}" style="width:75px; height:50px;" />
+</script>
+
+<style type="text/css">
+    .layui-table-cell {
+        text-align: center;
+        height: auto;
+        white-space: normal;
+    }
+</style>
+
+@section Scripts{
+    <script type="text/javascript">
+        layui.use(['table', 'layer', 'laydate', 'util'], function ()
+        {
+            var table = layui.table;
+            var $ = layui.$;
+            var layer = layui.layer;
+            var laydate = layui.laydate;
+            var util = layui.util;
+            table.render({
+                elem: '#tablee'
+                , height: 510
+                , where: $("#keyword").val()
+                , url: "@Url.Action("GetList")"//数据接口
+                , toolbar: "#topbar"
+                , page: true //开启分页
+                , cols: [[
+                    { type: "checkbox"},
+                    {  align: 'center', width: 80, templet: function (obj) {
+                        return obj.LAY_INDEX;
+                    }
+                    },
+                    //刘文涵
+                    { field: '照片', align: 'center', title: '照片', width: 130, align: "center", templet: "#image" },
+                    { field: '老师编号', align: 'center', title: '编号',  sort: true },
+                    { field: '老师姓名', align: 'center', title: '姓名',  sort: true },
+                    { title: '操作', fixed: 'right', width: 100, align: 'center', toolbar: '#tbar' }
+                ]]
+            });
+            table.on("toolbar(jsTable)", function (obj)
+            {
+            switch (obj.event) {
+                case 'search':
+                    table.reload("tablee", {
+                        page: { curr: 1 },
+                        where: { keyword: $('#keyword').val() }
+                    }, 'data');
+                    break;
+                case 'add':
+                    layer.open({
+                        type: 2,
+                        content: '@Url.Action("TeacherDetail")', //刘文涵
+                        title: "新增",
+                        area: ["700px", "450px"],
+                        end: function () { // layui 关闭弹框时的回调函数
+                            $("#search").click();
+                        }
+                    });
+                    break;
+            }
+            }
+            )
+           table.on("tool(jsTable)", function (obj) {
+                var event = obj.event;
+                var data = obj.data;
+                if (event == "Edit")
+                {
+                     layer.open({
+                         type: 2,
+                         content: '@Url.Action("TeacherDetail")?id=' + data.老师编号,/*刘文涵*/
+                       title: "修改",
+                       area: ["700px", "450px"],
+                       end: function () { // layui 关闭弹框时的回调函数
+                                $("#search").click();
+                            }
+                })
+                }
+           })
+
+     });
+    </script>
+}

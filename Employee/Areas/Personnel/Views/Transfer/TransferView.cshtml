@@ -1,0 +1,103 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout_2.cshtml";
+    ViewBag.Title = "部门及职务变动";
+}
+
+<style>
+    .layui-table-cell .layui-form-checkbox[lay-skin="primary"] {
+        transform: translateY(20%);
+    }
+</style>
+
+
+@*@Scripts.Render("~/bundles/layui")*@
+<div class="current-location">
+    <span>当前位置：</span>
+    <a><cite>系统管理</cite></a>
+    | <a><cite>人事信息管理</cite></a>
+    | <a><cite>部门及职务变动</cite></a>
+</div>
+
+<div id="tablee" lay-filter="jsTable"></div>
+
+<script type="text/html" id="topbar">
+
+    <div class="layui-inline" id="searchKeywordf">
+        <input type="text" autocomplete="off" id="keyword" placeholder="请输入要查询的工号..." class="layui-input">
+    </div>
+    <button class="layui-btn" data-type="search" id="search" lay-event="search">
+        <i class="layui-icon layui-icon-search"></i>查询
+    </button>
+    <button class="layui-btn" data-type="add" id="add" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>添加调动
+    </button>
+</script>
+
+@*@Styles.Render("~/Content/css")*@
+@section Scripts{
+    <script type="text/javascript">
+
+    layui.use(['table', 'layer'], function ()
+    {
+            var table = layui.table;
+            var $ = layui.$;
+            var layer = layui.layer
+            table.render({
+                elem: '#tablee'
+                , height: 510
+                , where: $("#keyword").val()
+                , url: "@Url.Action("GetList")"//数据接口
+                , toolbar: "#topbar"
+                , page: true //开启分页
+
+                , cols: [[
+                    {  width: 80, templet: function (obj) {
+                        return obj.LAY_INDEX;
+                    }
+                    },
+                    //刘文涵
+                    { field: '工号', title: '工号', width: 150, sort: true },
+                    { field: '姓名', title: '姓名', width: 150, sort: true },
+                    {
+                        field: '调动日期', title: '调动日期', width: 150, style: "height:50px;", sort: true,
+                        templet: function (d) {
+                            var val = d.调动日期;
+                            var date = new Date(parseInt(val.replace("/Date(", "").replace(")/", ""), 10));
+                            //月份为0-11，所以+1，月份小于10时补个0
+                            var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+                            var currentDate = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+                            return date.getFullYear() + "-" + month + "-" + currentDate;
+                        }
+                    },
+                    { field: '现部门名称', title: '现部门', width: 150, sort: true },
+                    { field: '现职务名称', title: '现职务', width: 150, sort: true },
+                    { field: '原部门名称', title: '原部门', width: 150, sort: true },
+                    { field: '原职务名称', title: '原职务', width: 200, sort: true },
+                ]]
+            });
+        table.on("toolbar(jsTable)", function (obj)
+            {
+            switch (obj.event) {
+                case 'search':
+                    table.reload("tablee", {
+                        page: { curr: 1 },
+                        where: { keyword: $('#keyword').val() }
+                    }, 'data');
+                    break;
+                case 'add':
+                    layer.open({
+                        type: 2,
+                        content: '@Url.Action("TransferDetail")', //刘文涵
+                        title: "新增",
+                        area: ["700px", "450px"],
+                        end: function () { // layui 关闭弹框时的回调函数
+                            $("#search").click();
+                        }
+                    });
+                    break;
+            }
+        }
+            )
+     });
+    </script>
+}

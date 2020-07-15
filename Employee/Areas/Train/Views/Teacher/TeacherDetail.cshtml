@@ -1,0 +1,127 @@
+﻿@Styles.Render("~/Content/css")
+<div class="layui-form layui-form-pane1" action="" lay-filter="first">
+    <br />
+    <div class="layui-form-item">
+        <label class="layui-form-label">编号</label>
+        <div class="layui-input-inline">
+            <input type="text" name="老师编号" id="老师编号" lay-verify="required" placeholder="请输入老师编号" autocomplete="off" class="layui-input">
+        </div>
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-inline">
+            <input type="text" name="老师姓名" lay-verify="required" placeholder="请输入老师姓名" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-upload">
+            <label class="layui-form-label">选择图片</label>
+            <button type="button" class="layui-btn" id="上传图片">本地浏览</button>
+            <div class="layui-upload-list">
+                <label class="layui-form-label">图片展示</label>
+                <img class="layui-upload-img" id="照片" style="width:100px;height:auto;">
+                <p id="demoText"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline" style="text-align:right">
+            <button class="layui-btn" lay-submit lay-filter="sub">立即提交</button>
+        </div>
+        <div class="layui-input-inline">
+            <button onclick="parent.layer.closeAll()" class="layui-btn layui-btn-primary">关闭</button>
+        </div>
+    </div>
+</div>
+
+@Scripts.Render("~/bundles/layui")
+<script type="text/javascript">
+    layui.use(['element', 'jquery', 'layer', 'form', 'laydate', 'util', "upload"], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var element = layui.element;
+        var laydate = layui.laydate;
+        var util = layui.util;
+        var upload = layui.upload;
+
+        var info = '@Html.Raw(ViewBag.Info)';
+        var jsonPos = null;
+
+
+        var imageUrl;//新增代码，保存上传图片后回传的图片路径
+
+        if (info) {
+            jsonPos = JSON.parse(info);
+        }
+
+        if (jsonPos != null) {
+            form.val("first", {
+                "老师编号": jsonPos["老师编号"],
+                "老师姓名": jsonPos["老师姓名"],
+                "照片": jsonPos["照片"],
+            })
+            imageUrl = jsonPos["照片"];
+            form.render();
+            
+            $("#老师编号").attr("disabled", "disabled");//刘文涵
+            $("#老师编号").attr("class", "layui-input layui-disabled");//刘文涵
+            $("#照片").attr("src", jsonPos["照片"]);
+        }
+
+        form.on("submit(sub)", function (obj) {//submit(login) 表示只对带有 lay-submit lay-filter="login" 的起作用
+            var adddata = obj.field;
+            adddata.照片 = imageUrl;
+            var edit = '@Html.Raw(ViewBag.Info)' ? 1 : 0;
+            console.log(adddata);
+            $.ajax({
+                type: "POST",
+                data: {
+                    adddata: adddata,
+                    edit: edit
+                },
+                url: "@Url.Action("Add")",
+                dataType: 'json',
+                success: function (result) {
+                    if (result.Success)//验证成功
+                    {
+                        layer.msg(result.Message, { icon: 1, time: 1000 }, function () {
+                            parent.layer.closeAll(); //关闭页面
+                        });
+                    }
+                    else {
+                        layer.msg(result.Message, { icon: 5, time: 1000 });
+                    }
+
+                },
+            })
+        })
+        var uploadInst = upload.render({
+            elem: '#上传图片',
+            url: '@Url.Action("Upload")',
+            before: function (obj) {
+                obj.preview(function (index, file, result) {
+                    $('#照片').attr('src', result);
+                });
+            },
+            done: function (res) {
+                if (res.Result) {
+　　　　　　　　　　//新增代码，将回传的图片保存路径进行保存并将图片绑定到上传后图片展示处
+                    imageUrl = res.Data;
+                    console.log(imageUrl);
+                    $("#照片").attr("src", imageUrl);
+                }
+            }
+            //,error: function () {
+            //    //演示失败状态，并实现重传
+            //    var demoText = $('#demoText');
+            //    demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+            //    demoText.find('.demo-reload').on('click', function () {
+            //        uploadInst.upload();
+            //    });
+            //}
+        });
+    })
+</script>
+

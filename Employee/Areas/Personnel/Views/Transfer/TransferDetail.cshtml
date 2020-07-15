@@ -1,0 +1,111 @@
+﻿@Styles.Render("~/Content/css")
+<div class="layui-form layui-form-pane1" action="" lay-filter="first">
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">工号</label>
+        <div class="layui-input-inline">
+            <input type="text" name="工号" id="工号" lay-verify="required" placeholder="请输入工号" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">请务必填写工号</div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">职务</label>
+        <div class="layui-input-inline">
+            <select lay-verify="required" name="职务名称" id="职务名称" class="SelectPaymentMode">
+                <option value="">请选择职务</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="layui-form-item">
+        <label class="layui-form-label">部门</label>
+        <div class="layui-input-inline">
+            <select lay-verify="required" name="部门名称" id="部门名称" class="SelectPaymentMode">
+                <option value="">请选择部门</option>
+            </select>
+        </div>
+    </div>
+    
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="sub">立即提交</button>
+            <button onclick="parent.layer.closeAll()" class="layui-btn layui-btn-primary">关闭</button>
+        </div>
+    </div>
+</div>
+
+@Scripts.Render("~/bundles/layui")
+<script type="text/javascript">
+    layui.use(['element', 'jquery', 'layer', 'form'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var element = layui.element;
+
+        $.ajax({
+        type: "get",
+        url: "@Url.Action("GetDepList")",
+        dataType: "json",
+            success: function (data) {
+            for (var i in data) {
+                $('#部门名称').append("<option value='" + data[i].部门名称 + "'>" + data[i].部门名称 + "</option>");
+
+                }
+                form.render();
+            if (info) {
+                var select = 'dd[lay-value=' + jsonPos["部门名称"] + ']';
+                $('#部门名称').siblings("div.layui-form-select").find('dl').find(select).click();
+            }
+        }
+        });
+
+        $.ajax({
+            type: "get",
+            url: "@Url.Action("GetPosList")",
+            dataType: "json",
+            success: function (data) {
+                for (var i in data) {
+                    $('#职务名称').append("<option value='" + data[i].职务名称 + "'>" + data[i].职务名称 + "</option>");
+                }
+                form.render();
+                if (info) {
+                    var select = 'dd[lay-value=' + jsonPos["职务名称"] + ']';
+                    $('#职务名称').siblings("div.layui-form-select").find('dl').find(select).click();
+                }
+            }
+        });
+        form.on("submit(sub)", function (obj) {//submit(login) 表示只对带有 lay-submit lay-filter="login" 的起作用
+            var adddata = obj.field;
+            $.ajax({
+                type: "POST",
+                data: {
+                    id: adddata['工号'],
+                    posname: adddata['职务名称'],
+                    depname: adddata['部门名称']
+                },
+                url: "@Url.Action("Add")",
+                dataType: 'json',
+                success: function (result) {
+                    if (result.Success)//验证成功
+                    {
+                        layer.msg(result.Message, { icon: 1, time: 1000 }, function () {
+                        parent.layer.closeAll(); //关闭页面
+                        });
+                    }
+                    else
+                    {
+                        layer.msg(result.Message, { icon: 5, time: 1000 });
+                    }
+
+                },
+                })
+        })
+    })
+</script>

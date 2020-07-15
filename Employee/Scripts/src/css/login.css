@@ -1,0 +1,53 @@
+body, html {
+	height: 100%;
+	width: 100%;
+	background-image: url(/Img/盆栽.jpg);
+	background-size: contain;
+	background-position: center center;
+}
+
+html {
+	height: 100%;
+}
+.layui-admin-login-header {
+	padding: 20px;
+	text-align: center;
+}
+
+.layui-admin-login-header h1 {
+	color: #009688;
+	font-family: "Helvetica Neue, Helvetica, PingFang SC, 微软雅黑, Tahoma, Arial, sans-serif";
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+.layui-admin-login-header p {
+	color: white;
+	font-family: "Helvetica Neue, Helvetica, PingFang SC, 微软雅黑, Tahoma, Arial, sans-serif";
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+.layui-admin-login {
+	width: 24%;
+	margin: 0 auto;
+	position: absolute;
+	top: 20%;
+	left: 37%;
+	box-shadow:0 -15px 30px #0d957a;
+    border-radius:5px;
+    padding: 2%;
+    z-index: 1000;
+}
+.layui-admin-login .layui-footer{
+	color: white;
+}
+
+.layui-admin-login .layui-form-checkbox {
+	margin-left: 0px;
+}
+/*chrome浏览器透明有点问题*/
+.layui-form label,input{
+	background-color:lightseagreen !important;
+	color: white !important;
+}
+

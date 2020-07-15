@@ -1,0 +1,154 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout_2.cshtml";
+    ViewBag.Title = "月工资查询";/*刘文涵*/
+}
+
+<style>
+    .layui-table-cell .layui-form-checkbox[lay-skin="primary"] {
+        transform: translateY(20%);
+    }
+</style>
+<div class="current-location">
+    <span>当前位置：</span>
+    <a><cite>系统管理</cite></a>
+    | <a><cite>工资信息管理</cite></a>
+    | <a><cite>月工资计算</cite></a>
+</div>
+<div id="tablee" lay-filter="jsTable"></div>
+
+<script type="text/html" id="topbar">
+
+    <div class="layui-inline" id="searchKeywordf">
+        <input type="text" autocomplete="off" id="keyword" placeholder="请输入工号..." class="layui-input">@*刘文涵*@
+    </div>
+    <div class="layui-input-inline">
+        <select lay-verify="required" name="部门名称" id="部门名称" class="SelectPaymentMode">
+            <option value="">请选择部门</option>
+        </select>
+    </div>
+    <button class="layui-btn" data-type="search" id="search" lay-event="search">
+        <i class="layui-icon layui-icon-search"></i>查询
+    </button>
+    <button class="layui-btn layui-btn-normal" id="calc" lay-event="calc">
+        <i class="layui-icon layui-icon-dollar"></i>月工资计算
+    </button>
+    <button class="layui-btn layui-btn-normal" id="backup" lay-event="backup">
+        <i class="layui-icon layui-icon-dollar"></i>工资结算备份
+    </button>
+</script>
+
+@section Scripts{
+    <script type="text/javascript">
+
+    layui.use(['table', 'layer'], function ()
+    {
+        var table = layui.table;
+        var $ = layui.$;
+        var layer = layui.layer
+
+        $.ajax({
+        type: "get",
+        url: "@Url.Action("GetDepList")",
+        dataType: "json",
+            success: function (data) {
+                for (var i in data) {
+                $('#部门名称').append("<option value='" + data[i].部门名称 + "'>" + data[i].部门名称 + "</option>");
+
+                }
+        }
+        });
+        table.render({
+            elem: '#tablee'
+            , height: 510
+            , where: { keyword: $("#keyword").val(), 部门名称: $("#部门名称").val()}
+            , url: "@Url.Action("GetList")"//数据接口
+            , totalRow: true
+            , toolbar: "#topbar"
+            , page: true //开启分页
+            , cols: [[
+                { type: "checkbox" },
+                { align: 'center', width: 60, templet: function (obj) {
+                    return obj.LAY_INDEX;
+                }
+                },
+                //刘文涵
+                { field: '工号', align: 'center', title: '工号', width: 120, sort: true },
+                { field: '姓名', align: 'center', title: '姓名', width: 120, sort: true },
+                { field: '部门名称', align: 'center', title: '部门名称', width: 120, sort: true, totalRowText: "合计" },
+                { field: '月出勤工资', align: 'center', title: '月出勤工资', width: 150, sort: true, totalRow: true },
+                { field: '职务工资', align: 'center', title: '职务工资', width: 150, sort: true, totalRow: true },
+                { field: '奖惩金额', align: 'center', title: '奖惩金额', width: 150, sort: true, totalRow: true },
+                { field: '加班费', align: 'center', title: '加班费', width: 100, sort: true, totalRow: true },
+                { field: '绩效工资', align: 'center', title: '绩效工资', width: 150, sort: true, totalRow: true },
+                { field: '代扣款', align: 'center', title: '代扣款', width: 100, sort: true, totalRow: true },
+                { field: '实发工资', align: 'center', title: '实发工资', width: 150, sort: true, totalRow: true }
+            ]]
+        });
+
+        table.on("toolbar(jsTable)", function (obj)
+        {
+            switch (obj.event) {
+                case 'search':
+                    $.ajax({
+                    type: "get",
+                    url: "@Url.Action("GetDepList")",
+                    dataType: "json",
+                        success: function (data) {
+                            for (var i in data) {
+                            $('#部门名称').append("<option value='" + data[i].部门名称 + "'>" + data[i].部门名称 + "</option>");
+
+                            }
+                            table.render();
+                    }
+                    });
+                    table.reload("tablee", {
+                        page: { curr: 1 },
+                        where: { keyword: $("#keyword").val(), 部门名称: $("#部门名称").val() },
+                    }, 'data');
+                    break;
+                case 'calc':
+                    layer.confirm("确认计算本月工资？", function () {
+                        layer.load(5, { shade: [0.5, "#5588AA"] });
+                        $.ajax({
+                            type: "POST",
+                            url: "@Url.Action("MonthWageCalc")",
+                            success: function (result) {
+                                layer.closeAll();
+                                if (result.Success) {
+                                    layer.msg(result.Message, { icon: 1 });
+                                    $("#search").click();
+                                }
+                                else {
+                                    layer.msg(result.Message, { icon: 5 });
+                                }
+                            }
+                        })
+                    })
+                    break;
+                case 'backup':
+                    layer.confirm("备份完成后，该月工资不可再修改，请确保该月工资已计算完毕", function () {
+                        layer.load(5, { shade: [0.5, "#5588AA"] });
+                        $.ajax({
+                            type: "POST",
+                            url: "@Url.Action("Backup")",
+                            success: function (result) {
+                                layer.closeAll();
+                                if (result.Success) {
+                                    layer.msg(result.Message, { icon: 1 });
+                                    $("#search").click();
+                                }
+                                else {
+                                    layer.msg(result.Message, { icon: 5 });
+                                }
+                            }
+                        })
+                    })
+                    break;
+
+            }
+        })
+
+
+     });
+    </script>
+}

@@ -1,0 +1,150 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout_2.cshtml";
+    ViewBag.Title = "请假管理";/*刘文涵*/
+}
+
+<style>
+    .layui-table-cell .layui-form-checkbox[lay-skin="primary"] {
+        transform: translateY(20%);
+    }
+</style>
+<div class="current-location">
+    <span>当前位置：</span>
+    <a><cite>系统管理</cite></a>
+    | <a><cite>考勤信息管理</cite></a>
+    | <a><cite>请假审批</cite></a>
+</div>
+
+<div id="tablee" lay-filter="jsTable"></div>
+
+<script type="text/html" id="topbar">
+
+    <div class="layui-inline" id="searchKeywordf">
+        <input type="text" autocomplete="off" id="keyword" placeholder="请输入工号..." class="layui-input">@*刘文涵*@
+    </div>
+    <button class="layui-btn" data-type="search" id="search" lay-event="search">
+        <i class="layui-icon layui-icon-search"></i>查询
+    </button>
+</script>
+<script type="text/html" id="tbar">
+    {{# if(d.是否审批 == "是"){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="rollback" title="驳回">
+        <i class="layui-icon layui-icon-delete"></i>驳回
+    </a>
+    {{# }else{ }}
+    <a class="layui-btn layui-btn-xs" lay-event="agree" title="审核">
+        <i class="layui-icon layui-icon-edit"></i>审核
+    </a>
+    {{# } }}
+
+
+</script>
+
+@*@Styles.Render("~/Content/css")*@
+@section Scripts{
+    <script type="text/javascript">
+
+    layui.use(['table', 'layer'], function ()
+    {
+            var table = layui.table;
+            var $ = layui.$;
+            var layer = layui.layer
+            table.render({
+                elem: '#tablee'
+                , height: 510
+                , where: $("#keyword").val()
+                , url: "@Url.Action("GetList")"//数据接口
+                , toolbar: "#topbar"
+                , page: true //开启分页
+                , cols: [[
+                    { type: "checkbox" },
+                    { align: 'center', width: 80, templet: function (obj) {
+                        return obj.LAY_INDEX;
+                    }
+                    },
+                    { field: '编号', align: 'center',title: '编号', width: 150, sort: true, hide: true },@* 刘文涵 以下几个*@
+                    //刘文涵
+                    {
+                        field: '是否审批', title: '是否已审核', align: 'center', width: 150, sort: true
+                    },
+                    { field: '工号', align: 'center',title: '工号', width: 150, sort: true },
+                    {
+                        field: '请假日期', align: 'center', title: '请假日期', width: 200, sort: true,
+                        templet: function (d) {
+                            var val = d.请假日期;
+                            var date = new Date(parseInt(val.replace("/Date(", "").replace(")/", ""), 10));
+                            //月份为0-11，所以+1，月份小于10时补个0
+                            var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+                            var currentDate = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+                            return date.getFullYear() + "-" + month + "-" + currentDate;
+                        }
+                    },
+                    { field: '请假天数', align: 'center', title: '请假天数', width: 200, sort: true },
+                    { field: '请假原因', align: 'center', title: '请假原因', width: 200, sort: true },
+                    { title: '操作', fixed: 'right', width: 150, align: 'center', toolbar: '#tbar' }
+                ]]
+            });
+        table.on("toolbar(jsTable)", function (obj)
+            {
+            switch (obj.event) {
+                case 'search':
+                    table.reload("tablee", {
+                        page: { curr: 1 },
+                        where: { keyword: $('#keyword').val() }
+                    }, 'data');
+                    break;
+            }
+        }
+            )
+           table.on("tool(jsTable)", function (obj) {
+                var event = obj.event;
+                var data = obj.data;
+                if (event == "agree")
+                {
+                    var id = data.编号; //刘文涵
+                    layer.confirm("确认审核吗？", function () {
+                        layer.load(5, { shade: [0.5, "#5588AA"] });
+                        $.ajax({
+                            type: "POST",
+                            url: "@Url.Action("Agree")",
+                            data: { id: id },
+                            success: function (result) {
+                                layer.closeAll();
+                                if (result.Success) {
+                                    $("#search").click();
+                                    layer.msg(result.Message, { icon: 1 });
+                                }
+                                else {
+                                    layer.msg(result.Message, { icon: 5 });
+                                }
+                            }
+                        })
+                    })
+                }
+                else if (event == "rollback") { // 删除
+                    var id = data.编号; //刘文涵
+                    layer.confirm("确认驳回吗？", function () {
+                        layer.load(5, { shade: [0.5, "#5588AA"] });
+                        $.ajax({
+                            type: "POST",
+                            url: "@Url.Action("Rollback")",
+                            data: { id: id },
+                            success: function (result) {
+                                layer.closeAll();
+                                if (result.Success) {
+                                    $("#search").click();
+                                    layer.msg(result.Message, { icon: 1 });
+                                }
+                                else {
+                                    layer.msg(result.Message, { icon: 5 });
+                                }
+                            }
+                        })
+                    })
+
+                }
+           })
+
+     });
+    </script>
+}

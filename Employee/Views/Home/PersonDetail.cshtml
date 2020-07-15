@@ -1,0 +1,173 @@
+﻿@Styles.Render("~/Content/css")
+    <div class="layui-form layui-form-pane1" action="" lay-filter="first">
+        <br />
+        <div class="layui-form-item">
+            <label class="layui-form-label">工号</label>
+            <div class="layui-input-inline">
+                <input type="text" name="工号" id="工号" lay-verify="required" placeholder="请输入工号" autocomplete="off" class="layui-input">
+            </div>
+            <label class="layui-form-label">姓名</label>
+            <div class="layui-input-inline">
+                <input type="text" name="姓名" lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">性别</label>
+            <div class="layui-input-inline">
+                <input type="radio" name="性别" value="男" title="男" checked="">
+                <input type="radio" name="性别" value="女" title="女">
+            </div>
+            <label class="layui-form-label">出生日期</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" lay-verify="date" name="出生日期" id="出生日期" placeholder="yyyy-MM-dd">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">身份证号码</label>
+            <div class="layui-input-inline">
+                <input type="text" name="身份证号码" id="身份证号码" lay-verify="identity" placeholder="请输入身份证号码" autocomplete="off" class="layui-input">
+            </div>
+            <label class="layui-form-label">职务名称</label>
+            <div class="layui-input-inline">
+                <input type="text" name="职务名称" lay-verify="required" placeholder="请输入职务名称" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">部门名称</label>
+            <div class="layui-input-inline">
+                <input type="text" name="部门名称" lay-verify="required" placeholder="请输入部门名称" autocomplete="off" class="layui-input">
+            </div>
+            <label class="layui-form-label">学历</label>
+            <div class="layui-input-inline">
+                <input type="text" name="学历" lay-verify="required" placeholder="请输入学历" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">籍贯</label>
+            <div class="layui-input-inline">
+                <input type="text" name="籍贯" id="籍贯" lay-verify="required" placeholder="请输入籍贯" autocomplete="off" class="layui-input">
+            </div>
+            <label class="layui-form-label">婚姻状态</label>
+            <div class="layui-input-inline">
+                <input type="radio" name="婚姻状态" value="已婚" title="已婚" checked="">
+                <input type="radio" name="婚姻状态" value="未婚" title="未婚">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">电话</label>
+            <div class="layui-input-inline">
+                <input type="text" name="电话" lay-verify="phone" placeholder="请输入电话" autocomplete="off" class="layui-input">
+            </div>
+            <label class="layui-form-label">邮箱</label>
+            <div class="layui-input-inline">
+                <input type="text" name="邮箱" lay-verify="email" placeholder="请输入邮箱" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">是否在职</label>
+            <div class="layui-input-inline">
+                <input type="radio" name="是否在职" value="是" title="是" checked="">
+                <input type="radio" name="是否在职" value="否" title="否">
+            </div>
+            <label class="layui-form-label">基本工资</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" lay-verify="money" name="基本工资" id="基本工资">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-upload">
+                <div class="layui-upload-list">
+                    <label class="layui-form-label">图片展示</label>
+                    <img class="layui-upload-img" id="照片" style="width:100px;height:auto;">
+                    <p id="demoText"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label"></label>
+            <div class="layui-input-inline" style="text-align:right">
+                <button onclick="parent.layer.closeAll()" class="layui-btn layui-btn-primary">关闭</button>
+            </div>
+        </div>
+    </div>
+
+@Scripts.Render("~/bundles/layui")
+<script type="text/javascript">
+    layui.use(['element', 'jquery', 'layer', 'form', 'laydate', 'util', "upload"], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var element = layui.element;
+        var laydate = layui.laydate;
+        var util = layui.util;
+        var upload = layui.upload;
+
+        var info = '@Html.Raw(ViewBag.Info)';
+        var jsonPos = null;
+
+
+        var imageUrl;//新增代码，保存上传图片后回传的图片路径
+
+        if (info) {
+            jsonPos = JSON.parse(info);
+        }
+
+        laydate.render({
+            elem: "#出生日期"
+        });
+      
+        if (jsonPos != null) {
+            form.val("first", {
+                "工号": jsonPos["工号"],
+                "姓名": jsonPos["姓名"],
+                "性别": jsonPos["性别"],
+                "出生日期": util.toDateString(jsonPos["出生日期"], 'yyyy-MM-dd'),
+                "身份证号码": jsonPos["身份证号码"],
+                "部门名称": jsonPos["部门名称"],
+                "职务名称": jsonPos["职务名称"],
+                "学历": jsonPos["学历"],
+                "籍贯": jsonPos["籍贯"],
+                "婚姻状态": jsonPos["婚姻状态"],
+                "电话": jsonPos["电话"],
+                "邮箱": jsonPos["邮箱"],
+                "是否在职": jsonPos["是否在职"],
+                "基本工资": jsonPos["基本工资"],
+                "照片": jsonPos["照片"],
+            })
+            imageUrl = jsonPos["照片"];
+            form.render();
+            $("#照片").attr("src", jsonPos["照片"]);
+        }
+        var uploadInst = upload.render({
+            elem: '#上传图片',
+            url: '@Url.Action("Upload")',
+            before: function (obj) {
+                obj.preview(function (index, file, result) {
+                    $('#照片').attr('src', result);
+                });
+            },
+            done: function (res) {
+                if (res.Result) {
+　　　　　　　　　　//新增代码，将回传的图片保存路径进行保存并将图片绑定到上传后图片展示处
+                    imageUrl = res.Data;
+                    console.log(imageUrl);
+                    $("#照片").attr("src", imageUrl);
+                }
+            }
+            //,error: function () {
+            //    //演示失败状态，并实现重传
+            //    var demoText = $('#demoText');
+            //    demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+            //    demoText.find('.demo-reload').on('click', function () {
+            //        uploadInst.upload();
+            //    });
+            //}
+        });
+    })
+</script>
+

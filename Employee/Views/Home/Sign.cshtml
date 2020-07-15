@@ -1,0 +1,87 @@
+﻿
+@{
+    ViewBag.Title = "Sign";
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    @Styles.Render("~/Content/css")
+    <link href="~/Scripts/src/css/login.css" rel="stylesheet" />
+    <link href="~/Scripts/src/css/layui.css" rel="stylesheet" />
+</head>
+<body class="layui-layout-body" style="background-color:white">
+    <div class="layui-fluid" style="padding: 100px; color:white" id="particles">
+        <div class="layui-form layui-form-pane layui-admin-login" style="enable-background:inherit">
+            <div class="layui-admin-login-header">
+                <h1>人事工资管理系统</h1>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><i class="layui-icon layui-icon-username"></i></label>
+                <div class="layui-input-block">
+                    <input required lay-verify="required" name="loginid" class="layui-input" type="text" placeholder="请输入账号" autocomplete="off" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><i class="layui-icon layui-icon-password"></i></label>
+                <div class="layui-input-block">
+                    <input required lay-verify="required" name="loginpassword" class="layui-input" type="password" placeholder="请输入密码" autocomplete="off" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <input type="checkbox" pane name="remember" title="记住密码" lay-skin="primary">
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-btn-container">
+                    @*lay-submit 提交功能 lay-filter 用来区分是哪个*@
+                    <button class="layui-btn layui-btn-fluid" lay-submit lay-filter="login">
+                        <i class="layui-icon layui-icon-ok-circle"></i>登陆
+                    </button>
+                </div>
+            </div>
+            <a style="text-align:right" href="https://localhost:44324/email/sendview">忘记密码？</a>
+            <!--底部-->
+            <div class="layui-footer">人事工资管理系统</div>
+        </div>
+    </div>
+
+    @Scripts.Render("~/bundles/layui")
+    <script>
+         //登录 需要做表单提交给后台，  或者数据收集之后提交给后台
+        
+        layui.use(['layer', 'form'], function () {
+            var layer = layui.layer,
+                form = layui.form,
+                $ = layui.jquery;
+
+            form.on("submit(login)", function (obj) {//submit(login) 表示只对带有 lay-submit lay-filter="login" 的起作用
+                var user = obj.field;
+                console.log(user);
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("Login")",
+                    data: user,
+                    success: function (result) {
+                        if (result.Success == true)//验证成功
+                        {
+                            window.location.href = "@Url.Action("Index")";
+                        }
+                        else
+                        {
+                            layer.msg(result.Message, { icon: 5 });
+                        }
+                        layer.closeAll("loading");
+                    }
+                })
+            })
+
+        })
+    </script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,117 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout_2.cshtml";
+    ViewBag.Title = "日志记录";/*刘文涵*/
+}
+
+<style>
+    .layui-table-cell .layui-form-checkbox[lay-skin="primary"] {
+        transform: translateY(20%);
+    }
+</style>
+<div class="current-location">
+    <span>当前位置：</span>
+    <a><cite>系统管理</cite></a>
+    | <a><cite>系统日志</cite></a>
+</div>
+
+<div id="tablee" lay-filter="jsTable"></div>
+
+<script type="text/html" id="topbar">
+
+    <div class="layui-inline" id="searchKeywordf">
+        <input type="text" autocomplete="off" id="keyword" placeholder="查询账号..." class="layui-input">@*刘文涵*@
+    </div>
+    <div class="layui-input-inline">
+        <input class="layui-input" lay-verify="date" name="起始日期" id="起始日期" placeholder="起始日期">
+    </div>
+    <text>—</text>
+    <div class="layui-input-inline">
+        <input class="layui-input" lay-verify="date" name="结束日期" id="结束日期" placeholder="结束日期">
+    </div>
+
+    <button class="layui-btn" data-type="search" id="search" lay-event="search">
+        <i class="layui-icon layui-icon-search"></i>查询
+    </button>
+</script>
+
+@section Scripts{
+    <script type="text/javascript">
+
+    layui.use(['table', 'layer', 'laydate', 'util'], function ()
+    {
+            var table = layui.table;
+            var $ = layui.$;
+            var layer = layui.layer;
+            var laydate = layui.laydate;
+            var util = layui.util;
+            laydate.render({
+                elem: "#起始日期"
+            });
+            laydate.render({
+                elem: "#结束日期"
+            });
+
+            table.render({
+                elem: '#tablee'
+                , height: 510
+                , where: { keyword: $("#keyword").val(), 起始日期: $("#起始日期").val(), 结束日期: $("#结束日期").val()}
+                , url: "@Url.Action("GetList")"//数据接口
+                , toolbar: "#topbar"
+                , page: true //开启分页
+                , cols: [[
+                    { type: "checkbox" },
+                    {
+                         align: 'center', width: 80, templet: function (obj) {
+                            return obj.LAY_INDEX;
+                        }
+                    },
+                    { field: '账号', align: 'center', title: '账号', width: 200, sort: true },@* 刘文涵 以下几个*@
+                    //刘文涵
+                    { field: '操作', align: 'center', title: '操作', width: 200, sort: true },
+                    {
+                        field: '操作日期', align: 'center', title: '操作日期', sort: true,
+                        templet: function (d) {
+                            var val = d.操作日期;
+                            var date = new Date(parseInt(val.replace("/Date(", "").replace(")/", ""), 10));
+                            return layui.util.toDateString(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                    }
+
+
+                ]]
+            });
+        // 自定义排序
+        //table.on("sort(jsTable)", function (obj) {
+        //    console.log(obj);
+        //    table.reload('tablee', {
+        //        initSort: obj,
+        //        where:{
+        //            field: obj.field,
+        //            order: obj.type
+        //    }
+        //    });
+        //});
+
+        table.on("toolbar(jsTable)", function (obj)
+            {
+            switch (obj.event) {
+                case 'search':
+                    table.reload("tablee", {
+                        page: { curr: 1 },
+                        where: { keyword: $("#keyword").val(), 起始日期: $("#起始日期").val(), 结束日期: $("#结束日期").val() }
+                    }, 'data');
+                    laydate.render({
+                        elem: "#起始日期"
+                    });
+                    laydate.render({
+                        elem: "#结束日期"
+                    });
+
+                    break;
+            }
+        }
+            )
+
+     });
+    </script>
+}

@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>用户登录</title>
+    @Styles.Render("~/Content/css")
+    <link href="/Content/login.css" rel="stylesheet" />
+    <link href="/Content/layui.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="particles">
+        <canvas class="pg-canvas" width="1280" height="580"></canvas>
+        <div class="login-body layui-form">
+            <div class="login-title">
+                .NET-Layui 基础开发平台
+            </div>
+            <div class="login-item">
+                <label class="layui-icon layui-icon-username"></label>
+                <input type="text" id="txtUserName" class="layui-input" placeholder="用户名" />
+            </div>
+            <div class="login-item">
+                <label class="layui-icon layui-icon-password"></label>
+                <input type="password" id="txtUserPwd" class="layui-input" placeholder="密码" />
+            </div>
+            <div class="login-item">
+                <button id="btnLogin" class="layui-btn layui-btn-fluid">登  录</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="/Scripts/jquery.particleground.min.js"></script>
+    <script src="/Scripts/layui.js"></script>
+    <script src="/Scripts/login.js"></script>
+    <script type="text/javascript">
+        layui.use(['layer'], function () {
+            layer.open({
+                type: 1,
+                title: '提示',
+                area: ['280px', '150px'],
+                offset: 'rb',
+                shade: 0,
+                content: '<div style="padding:20px;line-height:35px;font-size:16px"><p>用户名：sysadmin 密码：123456</p><p>请不要随意删除测试数据！</p></div>'
+            });
+        })
+    </script>
+</body>
+</html>

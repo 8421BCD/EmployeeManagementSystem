@@ -1,0 +1,111 @@
+﻿@Styles.Render("~/Content/css")
+<div class="layui-form layui-form-pane1" action="" lay-filter="first">
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+        </div>
+    </div>
+
+    <div class="layui-form-item" hidden="hidden">
+        <label class="layui-form-label">编号</label>
+        <div class="layui-input-inline">
+            <input type="text" name="编号" id="编号" placeholder="请输入编号" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">请务必填写编号</div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">工号</label>
+        <div class="layui-input-inline">
+            <input type="text" name="工号" id="工号" lay-verify="required" placeholder="请输入工号" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">请务必填写工号</div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">日期</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" lay-verify="date" name="日期" id="日期" placeholder="yyyy-MM-dd">
+        </div>
+        <div class="layui-form-mid layui-word-aux">请务必填写日期</div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">代扣款</label>
+        <div class="layui-input-inline">
+            <input type="text" name="代扣款" lay-verify="money" placeholder="请输入代扣款（正数）" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">请填写代扣款</div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">备注</label>@*刘文涵*@
+        <div class="layui-input-inline">
+            <input type="text" name="备注" lay-verify="required" placeholder="请输入备注" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">请务必填写备注</div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="sub">立即提交</button>
+            <button onclick="parent.layer.closeAll()" class="layui-btn layui-btn-primary">关闭</button>
+        </div>
+    </div>
+</div>
+
+@Scripts.Render("~/bundles/layui")
+<script type="text/javascript">
+    layui.use(['element', 'jquery', 'laydate','layer', 'form', 'util'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var element = layui.element;
+        var laydate = layui.laydate;
+        var util = layui.util;
+
+        laydate.render({
+            elem: "#日期"
+        });
+        form.on("submit(sub)", function (obj) {//submit(login) 表示只对带有 lay-submit lay-filter="login" 的起作用
+            var adddata = obj.field;
+            var edit = '@Html.Raw(ViewBag.Info)' ? 1 : 0;
+            $.ajax({
+                type: "POST",
+                data: {
+                    adddata: adddata,
+                    edit: edit
+                },
+                url: "@Url.Action("Add")",
+                dataType: 'json',
+                success: function (result) {
+                    if (result.Success)//验证成功
+                    {
+                        layer.msg(result.Message, { icon: 1, time: 1000 }, function () {
+                        parent.layer.closeAll(); //关闭页面
+                        });
+                    }
+                    else
+                    {
+                        layer.msg(result.Message, { icon: 5, time: 2000 });
+                    }
+
+                },
+                })
+        })
+        var Info = '@Html.Raw(ViewBag.Info)';
+        var jsonPos = null;
+        if (Info) {
+            jsonPos = JSON.parse(Info);
+        }
+        if (jsonPos != null)
+        {
+            $("#工号").attr("disabled", "disabled");//刘文涵
+            $("#工号").attr("class", "layui-input layui-disabled");//刘文涵
+            form.val("first", {
+                "编号": jsonPos["编号"],
+                "工号": jsonPos["工号"],
+                "日期": util.toDateString(jsonPos["日期"], 'yyyy-MM-dd'),
+                "代扣款": jsonPos["代扣款"],
+                "备注": jsonPos["备注"],
+            })
+        }
+    })
+</script>

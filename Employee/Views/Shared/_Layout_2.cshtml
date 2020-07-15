@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>@ViewBag.title</title>
+    @Styles.Render("~/Content/css")
+    <link href="/Content/base.css" rel="stylesheet">
+</head>
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <div class="layui-header">
+            <div class="layui-logo">人事工资管理系统</div>
+            <!-- 头部区域（可配合layui已有的水平导航） -->
+            <ul class="layui-nav layui-layout-left" lay-filter="left-nav">
+                <li class="layui-nav-item"><a href="https://localhost:44324/Home/Index">控制台</a></li>
+                <li class='layui-nav-item'><a href='https://localhost:44324/Home/Index1'><i class='fa fa-folder-open-o'></i>自助服务</a></li>
+                <li class='layui-nav-item'><a href='https://localhost:44324/Home/Index2'><i class='fa fa-cogs'></i>系统管理</a></li>
+            </ul>
+
+            <ul class="layui-nav layui-layout-right" lay-filter="right-nav">
+                <li class="layui-nav-item">
+                    <a href="javascript:;" id="我要打卡">我要打卡</a>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">
+                        <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+                        用户
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:;" id="基本资料">基本资料</a></dd>
+                        <dd><a href="javascript:;" id="修改密码">修改密码</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a id="wc" href="https://localhost:44324/Home/logout" lay-event="logout">
+                        退出
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="layui-side layui-bg-black">
+            <div class="layui-side-scroll">
+                <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+                <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                    <li class="layui-nav-item" id="人事信息管理">
+                        <a class="" href="javascript:;">人事信息管理</a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="https://localhost:44324/personnel/Person/Personview">员工信息</a></dd>
+                            <dd><a href="https://localhost:44324/Personnel/department/departmentview">部门字典</a></dd>
+                            <dd><a href="https://localhost:44324/Personnel/Position/PositionView">职务字典</a></dd>
+                            <dd><a href="https://localhost:44324/Personnel/Transfer/TransferView">人员调动记录</a></dd>
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="javascript:;">工资信息管理</a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="https://localhost:44324/wage/prize/prizeview">奖惩工资</a></dd>
+                            <dd><a href="https://localhost:44324/wage/Merit/Meritview">绩效工资</a></dd>
+                            <dd><a href="https://localhost:44324/wage/Withhold/Withholdview">代扣款</a></dd>
+                            <dd><a href="https://localhost:44324/Wage/MonthWage/MonthWageView">月工资计算</a></dd>
+                            <dd><a href="https://localhost:44324/wage/historywage/historywageview">累计工资记录</a></dd>
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="javascript:;">考勤信息管理</a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="https://localhost:44324/attend/workday/workdayview">月工作天数字典</a></dd>
+                            <dd><a href="https://localhost:44324/Attend/Overtime/Overtimeview">加班管理</a></dd>
+                            <dd><a href="https://localhost:44324/Attend/Leave/Leaveview">请假审批</a></dd>
+                            <dd><a href="https://localhost:44324/Attend/Punch/PunchView">打卡记录</a></dd>
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="javascript:;">培训信息管理</a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="https://localhost:44324/train/course/courseview">培训课程信息</a></dd>
+                            <dd><a href="https://localhost:44324/Train/Teacher/Teacherview">培训老师信息</a></dd>
+                            <dd><a href="https://localhost:44324/Train/exam/examview">培训成绩管理</a></dd>
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item"><a href="https://localhost:44324/User/UserManager/Userview">用户管理</a></li>
+                    <li class="layui-nav-item"><a href="https://localhost:44324/User/log/logview">系统日志</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="layui-body layui-bg-gray">
+            <!--选项卡-->
+            @RenderBody()
+        </div>
+        <div class="layui-footer">
+            <!-- 底部固定区域 -->
+            © layui.com - 底部固定区域
+        </div>
+    </div>
+    @Scripts.Render("~/bundles/layui")
+    @RenderSection("scripts", required: false)
+    <script>
+        //JavaScript代码区域
+        layui.use(['table', 'layer', 'element'], function () {
+            var table = layui.table;
+            var $ = layui.$;
+            var layer = layui.layer
+
+            var element = layui.element;
+
+            element.on('nav(right-nav)', function (data) {
+                var id = data.attr('id');
+                switch (id) {
+                    case '我要打卡':
+                        layer.confirm("确认打卡吗？", function () {
+                            layer.load(5, { shade: [0.5, "#5588AA"] });
+                            $.ajax({
+                                type: "POST",
+                                url: "https://localhost:44324/Attend/Punch/Punchcard",
+                                success: function (result) {
+                                    layer.closeAll();
+                                    if (result.Success) {
+                                        layer.msg(result.Message, { icon: 1 });
+                                    }
+                                    else {
+                                        layer.msg(result.Message, { icon: 5 });
+                                    }
+                                }
+                            })
+                        })
+                        break;
+                    case '基本资料':
+                        layer.open({
+                            type: 2,
+                            content: 'https://localhost:44324/Home/PersonDetail', //刘文涵
+                            title: "个人信息",
+                            area: ["700px", "450px"],
+                        });
+                        break;
+                    case '修改密码':
+                        layer.open({
+                            type: 2,
+                            content: 'https://localhost:44324/User/UserManager/passworddetail', //刘文涵
+                            title: "个人信息",
+                            area: ["700px", "450px"],
+                        });
+                        break;
+                        
+                }
+
+            });
+
+        });
+    </script>
+</body>
+</html>
