@@ -20,7 +20,7 @@ ASP.NET MVC + LayUI
 
 Microsoft SQL Server Management Studio 18
 
-## 二、System function
+## System function
 
 ### 1、Function
 
@@ -360,7 +360,7 @@ public ActionResult MonthWageCalc()
 
 
 
-#### 员工培训管理
+#### Training management
 
 ##### **1）Function descriptions**
 
@@ -400,7 +400,7 @@ public ActionResult MonthWageCalc()
 
 ![image-20200616131907673](https://raw.githubusercontent.com/8421BCD/CDN/master//img/20200717091644.png)
 
-##### **4）code
+##### 4）code
 
 ```c#
 using System;
